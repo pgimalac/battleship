@@ -5,3 +5,4 @@ authors = ["Pierre Gimalac <pierre.gimalac@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+sdl2 = {git = "https://github.com/AngryLawyer/rust-sdl2"}

@@ -6,8 +6,15 @@ This project is a battleship game aimed at making me pratice Rust.
 - I'll also try to include a network multiplayer
 
 #### To do
-- [ ] start
+- [x] start
+- [x] implement the game
 
-- [ ] implement the game
+Threads to implement :
+
+- [ ] Event
 - [ ] GUI
 - [ ] Network
+
+One day:
+
+- [ ] AI

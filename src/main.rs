@@ -18,7 +18,7 @@ use std::thread;
 pub const NB: i32 = 12;
 
 fn wait_client() -> Option<TcpStream> {
-    let listener = TcpListener::bind("127.0.0.1:8080").unwrap();
+    let listener = TcpListener::bind("0.0.0.0:8080").unwrap();
     match listener.accept() {
         Ok((client, addr)) => {
             println!("A client was found : {}", addr);
@@ -41,7 +41,8 @@ fn create_game_type() -> Result<GameType, String> {
                     socket: stream,
                 });
             }
-            _ => {
+            Err(st) => {
+                println!("{}", st);
                 if s == "host" {
                     let tcp_s = wait_client();
                     return match tcp_s {

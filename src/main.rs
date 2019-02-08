@@ -1,6 +1,7 @@
 mod boat;
 mod direction;
 mod game;
+mod network;
 mod player;
 mod view;
 
@@ -9,8 +10,12 @@ use crate::direction::Direction;
 use crate::game::{Game, GameType};
 use crate::player::Player;
 use std::net::{TcpListener, TcpStream};
+use std::ops::DerefMut;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
-use std::{thread, time};
+use std::thread;
+
+pub const NB: i32 = 12;
 
 fn wait_client() -> Option<TcpStream> {
     let listener = TcpListener::bind("127.0.0.1:8080").unwrap();
@@ -30,13 +35,21 @@ fn create_game_type() -> Result<GameType, String> {
         match tcp_s {
             Ok(stream) => {
                 println!("Successful connexion to {}", s);
-                return Ok(GameType::Network(create_game(), stream));
+                return Ok(GameType::Network {
+                    game: create_game(),
+                    player: AtomicBool::new(false),
+                    socket: stream,
+                });
             }
             _ => {
                 if s == "host" {
                     let tcp_s = wait_client();
                     return match tcp_s {
-                        Some(stream) => Ok(GameType::Network(create_game(), stream)),
+                        Some(stream) => Ok(GameType::Network {
+                            game: create_game(),
+                            player: AtomicBool::new(true),
+                            socket: stream,
+                        }),
                         None => Err(String::from("Unable to find client")),
                     };
                 }
@@ -44,14 +57,17 @@ fn create_game_type() -> Result<GameType, String> {
         }
     }
 
-    Err(String::from("nope"))
+    Ok(GameType::Ai {
+        game: create_game(),
+        opponent: create_game(),
+    })
 }
 
 fn create_game() -> Game {
-    let carrier = Boat::new(Class::Carrier, (0, 0), Direction::Right);
-    let battleship = Boat::new(Class::Battleship, (0, 1), Direction::Up);
+    let carrier = Boat::new(Class::Carrier, (1, 0), Direction::Right);
+    let battleship = Boat::new(Class::Battleship, (0, 2), Direction::Up);
     let cruiser = Boat::new(Class::Cruiser, (11, 1), Direction::Left);
-    let submarine = Boat::new(Class::Submarine, (11, 11), Direction::Down);
+    let submarine = Boat::new(Class::Submarine, (10, 10), Direction::Down);
     let destroyer = Boat::new(Class::Destroyer, (5, 5), Direction::Left);
 
     let player = Player::new(
@@ -59,7 +75,7 @@ fn create_game() -> Game {
         vec![carrier, battleship, cruiser, submarine, destroyer],
     );
 
-    Game::new(12, 12, player)
+    Game::new(NB as usize, NB as usize, player)
 }
 
 fn main() {
@@ -72,9 +88,32 @@ fn main() {
         }
     };
 
-    let mut1 = mutex_game.clone();
+    let work = Arc::new(AtomicBool::new(true));
 
-    thread::spawn(move || {
-        view::view_thread(mut1);
+    let m = mutex_game.clone();
+    let w = work.clone();
+    let child1 = thread::spawn(move || {
+        view::view_thread(m, w);
     });
+
+    let m = mutex_game.clone();
+    let w = work.clone();
+    let child2 = thread::spawn(move || {
+        network::network_thread(m, w);
+    });
+
+    child1.join().unwrap();
+    child2.join().unwrap();
+}
+
+pub fn quit(mutex: &mut Arc<Mutex<GameType>>, work: &mut Arc<AtomicBool>) {
+    println!("quit");
+    work.store(false, Ordering::Relaxed);
+    match mutex.lock().unwrap().deref_mut() {
+        GameType::Network { socket, .. } => {
+            socket.shutdown(std::net::Shutdown::Both).unwrap();
+        }
+        _ => (),
+    }
+    std::process::exit(0);
 }

@@ -1,6 +1,7 @@
 use crate::game::GameType;
 use crate::quit;
 use std::io::Read;
+use std::net::{TcpListener, TcpStream};
 use std::ops::DerefMut;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
@@ -54,4 +55,13 @@ pub fn network_thread(mut mutex: Arc<Mutex<GameType>>, mut work: Arc<AtomicBool>
             println!("Unexpected message, length {}", buffer.len());
         }
     }
+}
+
+pub fn wait_client() -> Option<TcpStream> {
+    let listener = TcpListener::bind("0.0.0.0:8080").unwrap();
+    if let Ok((client, addr)) = listener.accept() {
+        println!("A client was found : {}", addr);
+        return Some(client);
+    }
+    None
 }

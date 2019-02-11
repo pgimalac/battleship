@@ -108,9 +108,7 @@ impl GameType {
             } => {
                 let b = game.opponent_attack(p);
                 player.store(true, Ordering::Relaxed);
-                socket
-                    .write(&[CONFIRM, p.0, p.1, if b { 1 } else { 0 }])
-                    .unwrap();
+                socket.write(&[CONFIRM, p.0, p.1, b as u8]).unwrap();
                 println!("Message sent : confirm ({}, {}) as {}", p.0, p.1, b);
             }
             GameType::Ai { game, .. } => {

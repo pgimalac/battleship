@@ -48,39 +48,29 @@ impl Boat {
     }
 
     pub fn shoot(&mut self, position: Position) -> bool {
-        println!("shoot");
         let n: i8;
 
         if self.direction.dx() == 0 {
             if self.position.0 == position.0 && self.direction.dy() != 0 {
                 n = (position.1 as i8 - self.position.1 as i8) / self.direction.dy();
             } else {
-                println!("shoot false 1");
                 return false;
             }
         } else if self.direction.dy() == 0 {
             if self.position.1 == position.1 {
                 n = (position.0 as i8 - self.position.0 as i8) / self.direction.dx();
             } else {
-                println!("shoot false 2");
                 return false;
             }
         } else {
-            println!("shoot false 3");
             return false;
         }
 
-        if n < 0 || n >= self.max_life() as i8 {
-            println!("shoot false 4");
-            return false;
-        }
-        if !self.detailed_life[n as usize] {
-            println!("shoot false 5");
+        if n < 0 || n >= self.max_life() as i8 || !self.detailed_life[n as usize] {
             return false;
         }
 
         self.detailed_life[n as usize] = false;
-        println!("successful shot");
         return true;
     }
 }

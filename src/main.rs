@@ -1,6 +1,8 @@
 mod boat;
 mod direction;
+mod elem_view;
 mod game;
+mod game_view;
 mod network;
 mod player;
 mod view;
@@ -8,8 +10,9 @@ mod view;
 use crate::boat::{Boat, Class};
 use crate::direction::Direction;
 use crate::game::{Game, GameType};
+use crate::network::wait_client;
 use crate::player::Player;
-use std::net::{TcpListener, TcpStream};
+use std::net::TcpStream;
 use std::ops::DerefMut;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
@@ -17,47 +20,30 @@ use std::thread;
 
 pub const NB: i32 = 12;
 
-fn wait_client() -> Option<TcpStream> {
-    let listener = TcpListener::bind("0.0.0.0:8080").unwrap();
-    match listener.accept() {
-        Ok((client, addr)) => {
-            println!("A client was found : {}", addr);
-            return Some(client);
-        }
-        _ => {}
-    }
-    None
-}
-
 fn create_game_type() -> Result<GameType, String> {
     for s in std::env::args() {
-        let tcp_s = TcpStream::connect((s.as_str(), 8080));
-        match tcp_s {
-            Ok(stream) => {
-                println!("Successful connexion to {}", s);
-                return Ok(GameType::Network {
+        if s == "host" {
+            return match wait_client() {
+                Some(stream) => Ok(GameType::Network {
                     game: create_game(),
-                    player: AtomicBool::new(false),
+                    player: AtomicBool::new(true),
                     socket: stream,
-                });
-            }
-            Err(st) => {
-                println!("{}", st);
-                if s == "host" {
-                    let tcp_s = wait_client();
-                    return match tcp_s {
-                        Some(stream) => Ok(GameType::Network {
-                            game: create_game(),
-                            player: AtomicBool::new(true),
-                            socket: stream,
-                        }),
-                        None => Err(String::from("Unable to find client")),
-                    };
-                }
-            }
+                }),
+                None => Err(String::from("Unable to find client")),
+            };
+        }
+
+        if let Ok(stream) = TcpStream::connect((s.as_str(), 8080)) {
+            println!("Successful connexion to {}", s);
+            return Ok(GameType::Network {
+                game: create_game(),
+                player: AtomicBool::new(false),
+                socket: stream,
+            });
         }
     }
 
+    println!("Ai game");
     Ok(GameType::Ai {
         game: create_game(),
         opponent: create_game(),
@@ -110,11 +96,8 @@ fn main() {
 pub fn quit(mutex: &mut Arc<Mutex<GameType>>, work: &mut Arc<AtomicBool>) {
     println!("quit");
     work.store(false, Ordering::Relaxed);
-    match mutex.lock().unwrap().deref_mut() {
-        GameType::Network { socket, .. } => {
-            socket.shutdown(std::net::Shutdown::Both).unwrap();
-        }
-        _ => (),
+    if let GameType::Network { socket, .. } = mutex.lock().unwrap().deref_mut() {
+        socket.shutdown(std::net::Shutdown::Both).unwrap();
     }
     std::process::exit(0);
 }

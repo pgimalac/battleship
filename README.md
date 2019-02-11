@@ -8,12 +8,17 @@ This project is a battleship game aimed at making me pratice Rust.
 #### To do
 - [x] start
 - [x] implement the game
+- [x] Event
+- [x] GUI
+- [x] Network
 
-Threads to implement :
-
-- [ ] Event
-- [ ] GUI
-- [ ] Network
+- [ ] Display whose turn it is
+- [ ] Menu
+- [ ] Buttons to quit, restart, back to menu,...
+- [ ] Put boats yourself
+- [ ] Move boats
+- [ ] Attack with each boats
+- [ ] Special abilities for each boat
 
 One day:
 

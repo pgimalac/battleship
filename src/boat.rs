@@ -25,21 +25,27 @@ impl Class {
 #[derive(Debug)]
 pub struct Boat {
     pub class: Class,
-    pub life: u8,
     pub position: Position,
     pub direction: Direction,
     pub detailed_life: Vec<bool>,
 }
 
 impl Boat {
-    pub fn new(class: Class, position: Position, direction: Direction) -> Boat {
-        let life = class.max_life();
+    pub fn is_dead(&self) -> bool {
+        for b in &self.detailed_life {
+            if *b {
+                return false;
+            }
+        }
+        true
+    }
+
+    pub fn new(class: Class, position: Position, direction: Direction) -> Self {
         Boat {
             class,
-            life,
             position,
             direction,
-            detailed_life: vec![true; life as usize],
+            detailed_life: vec![true; class.max_life() as usize],
         }
     }
 

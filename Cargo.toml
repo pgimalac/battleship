@@ -8,3 +8,6 @@ edition = "2018"
 git = "https://github.com/AngryLawyer/rust-sdl2"
 default-features = false
 features = ["ttf"]
+
+[dependencies]
+rand = ""

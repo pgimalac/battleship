@@ -1,13 +1,25 @@
 use crate::boat::Boat;
 
+// to change ?
+// add a username ? any more informations ?
 #[derive(Debug)]
 pub struct Player {
-    pub name: String,
-    pub boats: Vec<Boat>,
+    pub boats:Vec<Boat>,
 }
 
 impl Player {
-    pub fn new(name: String, boats: Vec<Boat>) -> Player {
-        Player { name, boats }
+    pub fn new(boats: Vec<Boat>) -> Self {
+        Player {
+            boats
+        }
+    }
+
+    pub fn is_dead(&self) -> bool {
+        for boat in &self.boats {
+            if !boat.is_dead() {
+                return false;
+            }
+        }
+        true
     }
 }

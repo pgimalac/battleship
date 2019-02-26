@@ -18,4 +18,13 @@ impl Direction {
     pub fn delta(&self) -> (i8, i8) {
         (self.dx(), self.dy())
     }
+
+    pub fn rotate(&self) -> Self {
+        match self {
+            Direction::Up => Direction::Right,
+            Direction::Right => Direction::Down,
+            Direction::Down => Direction::Left,
+            Direction::Left => Direction::Up,
+        }
+    }
 }

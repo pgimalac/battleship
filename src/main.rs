@@ -1,11 +1,7 @@
-#[macro_use] mod utils;
-mod game_view;
-mod boat;
-mod direction;
-mod game;
+#[macro_use]
+mod utils;
+mod model;
 mod network;
-mod panels;
-mod player;
 mod view;
 
 pub const NB: i32 = 12;

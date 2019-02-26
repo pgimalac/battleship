@@ -4,6 +4,27 @@ use sdl2::render::Canvas;
 use sdl2::video::Window;
 
 #[macro_export]
+macro_rules! in_board {
+    ($x : expr, $y : expr, $width : expr, $height : expr, $offset_x : expr, $offset_y : expr, $_a : block) => {
+        $x >= $offset_x && $y >= $offset_y && $x < $width + $offset_x && $y < $height + $offset_y
+    };
+    ($x : expr, $y : expr, $width : expr, $height : expr, $offset_x : expr, $offset_y : expr) => {
+        in_board!(
+            $x as i128,
+            $y as i128,
+            $width as i128,
+            $height as i128,
+            $offset_x as i128,
+            $offset_y as i128,
+            {}
+        )
+    };
+    ($x : expr, $y : expr, $width : expr, $height : expr) => {
+        in_board!($x, $y, $width, $height, 0, 0)
+    };
+}
+
+#[macro_export]
 macro_rules! result_map {
     ($x : expr, $g : expr, $h : expr) => {
         match $x {
@@ -85,7 +106,7 @@ pub const MAGENTA: Color = Color {
     b: 255,
     a: 0,
 };
-pub const _CYAN: Color = Color {
+pub const CYAN: Color = Color {
     r: 0,
     g: 255,
     b: 255,

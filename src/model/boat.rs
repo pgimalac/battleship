@@ -1,5 +1,5 @@
 type Position = (u8, u8);
-use crate::direction::Direction;
+use crate::model::direction::Direction;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Class {

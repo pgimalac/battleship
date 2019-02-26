@@ -1,4 +1,4 @@
-use crate::game::GameType;
+use crate::model::game::GameType;
 use std::io::Read;
 use std::net::{TcpListener, TcpStream};
 use std::time::Duration;
@@ -51,7 +51,7 @@ impl GameType {
     }
 }
 
-pub fn wait_client() -> Option<TcpStream> {
+pub fn _wait_client() -> Option<TcpStream> {
     let listener = TcpListener::bind("0.0.0.0:8080").unwrap();
     if let Ok((client, addr)) = listener.accept() {
         println!("A client was found : {}", addr);

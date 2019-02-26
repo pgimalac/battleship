@@ -1,8 +1,9 @@
-use crate::boat::{Boat, Class};
-use crate::direction::Direction;
-use crate::network::ATTACK;
-use crate::network::CONFIRM;
-use crate::player::Player;
+use crate::model::{
+    boat::{Boat, Class},
+    direction::Direction,
+    player::Player,
+};
+use crate::network::{ATTACK, CONFIRM};
 use crate::NB;
 use rand::Rng;
 use std::io::Write;
@@ -22,10 +23,6 @@ pub struct Game {
     pub board_boats: Vec<Vec<Option<u8>>>,
     pub shot_boats: Vec<Vec<Option<bool>>>,
     pub player: Player,
-}
-
-fn in_board(size_x: u8, size_y: u8, x: i8, y: i8) -> bool {
-    x >= 0 && y >= 0 && x < size_x as i8 && y < size_y as i8
 }
 
 impl Game {
@@ -66,12 +63,12 @@ impl Game {
             let mut x = boat.position.0 as i8;
             let mut y = boat.position.1 as i8;
 
-            if !in_board(board_boats.len() as u8, board_boats[0].len() as u8, x, y)
-                || !in_board(
-                    board_boats.len() as u8,
-                    board_boats[0].len() as u8,
-                    x + d.0 * boat.max_life() as i8,
-                    y + d.1 * boat.max_life() as i8,
+            if !in_board!(x, y, board_boats.len(), board_boats[0].len())
+                || !in_board!(
+                    x as i8 + d.0 * (boat.max_life() - 1) as i8,
+                    y as i8 + d.1 * (boat.max_life() - 1) as i8,
+                    board_boats.len(),
+                    board_boats[0].len()
                 )
             {
                 return Err(format!("Wrong boat position {:?}", boat));
@@ -241,16 +238,16 @@ impl GameType {
     // called to attack a position
     pub fn attack(&mut self, p: (u8, u8)) -> Result<(), String> {
         println!("attack ({};{})", p.0, p.1);
-        /* TODO
-            Record the attack position to avoid multiple attacks
-            before the opponent answers
-        */
         match self {
             GameType::Network {
                 game,
                 socket,
                 player,
             } => {
+                /* TODO
+                    Record the attack position to avoid multiple attacks
+                    before the opponent answers
+                */
                 if *player && game.shot_boats[p.0 as usize][p.1 as usize] == None {
                     println!("message sent : attack ({};{})", p.0, p.1);
                     result_map!(
@@ -267,12 +264,18 @@ impl GameType {
                 opponent,
                 player,
             } => {
-                let b = if *player && !game.shot(p) {
-                    opponent
-                } else if !opponent.shot(p) {
-                    game
+                let b = if *player {
+                    if !game.shot(p) {
+                        opponent
+                    } else {
+                        return Ok(());
+                    }
                 } else {
-                    return Ok(());
+                    if !opponent.shot(p) {
+                        game
+                    } else {
+                        return Ok(());
+                    }
                 }
                 .opponent_attack(p);
                 self.confirm_attack(p, b)

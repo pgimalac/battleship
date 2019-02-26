@@ -1,15 +1,29 @@
-use crate::panels::*;
-use crate::NB;
-use sdl2::event::{Event, EventType};
-use sdl2::keyboard::Keycode;
+mod buttons;
+mod connection;
+mod creation;
+mod end_game;
+mod game;
+mod game_renderer;
+mod menu;
+mod panel;
+
+use crate::{
+    view::{
+        game::{BOARD_WIDTH, DELTA},
+        menu::MenuPanel,
+        panel::Panel,
+    },
+    NB,
+};
+use sdl2::{
+    event::{Event, EventType},
+    keyboard::Keycode,
+    mouse::MouseState,
+};
 use std::{thread, time};
 
-pub const SIZE: i32 = 50;
-pub const DELTA: i32 = 2 * SIZE;
-pub const HEIGHT: i32 = NB * SIZE;
-pub const BOARD_WIDTH: i32 = NB * SIZE;
+pub const HEIGHT: i32 = BOARD_WIDTH;
 pub const WIDTH: i32 = 2 * BOARD_WIDTH + DELTA;
-pub const OFFSET_X: i32 = BOARD_WIDTH + 100;
 
 pub fn run() -> Result<(), String> {
     let sdl_context = try_string!(sdl2::init());
@@ -39,7 +53,7 @@ pub fn run() -> Result<(), String> {
     loop {
         canvas.clear();
         if let Some(panel) = &mut panel {
-            panel.render(&mut canvas)?;
+            panel.render(&mut canvas, MouseState::new(&event_pump))?;
             if panel.do_loop()? {
                 continue;
             }
@@ -60,7 +74,8 @@ pub fn run() -> Result<(), String> {
                 } => {
                     panel = Some(Box::new(MenuPanel::new(
                         &mut panel as *mut Option<Box<Panel>>,
-                    )))
+                    )));
+                    continue;
                 }
                 e => {
                     if let Some(panel) = &mut panel {

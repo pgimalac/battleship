@@ -65,10 +65,14 @@ impl Panel for GamePanel {
             unsafe {
                 *self.panel = Some(Box::new(EndGamePanel::new(self.panel, b)));
             }
-
             Ok(true)
         } else if let GameType::Network { .. } = self.game {
-            self.game.check_network()
+            if self.game.check_network()? {
+                unsafe { *self.panel = Some(Box::new(EndGamePanel::new(self.panel, true))) }
+                Ok(true)
+            } else {
+                Ok(false)
+            }
         } else {
             Ok(false)
         }

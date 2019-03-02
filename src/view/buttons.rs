@@ -5,7 +5,7 @@ pub struct Button {
     position: Rect,
     _text: String,
     _text_color: Color,
-    action: Box<FnMut() -> ()>,
+    action: Box<FnMut() -> bool>,
 }
 
 impl Button {
@@ -17,7 +17,7 @@ impl Button {
         background: Color,
         _text: String,
         _text_color: Color,
-        action: Box<FnMut() -> ()>,
+        action: Box<FnMut() -> bool>,
     ) -> Button {
         Button {
             position: Rect::new(x, y, w as u32, h as u32),
@@ -30,16 +30,14 @@ impl Button {
 
     pub fn render(&self, canvas: &mut Canvas<Window>) -> Result<(), String> {
         canvas.set_draw_color(self.background);
-        canvas.fill_rect(self.position)?;
-
-        Ok(())
+        canvas.fill_rect(self.position)
     }
 
     pub fn contains_point<P: Into<(i32, i32)>>(&self, point: P) -> bool {
         self.position.contains_point(point)
     }
 
-    pub fn execute(&mut self) {
-        (self.action)();
+    pub fn execute(&mut self) -> bool {
+        (self.action)()
     }
 }

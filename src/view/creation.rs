@@ -73,7 +73,7 @@ impl CreationPanel {
                 YELLOW,
                 "Start".to_string(),
                 TEXT_COLOR,
-                Box::new(|| {}),
+                Box::new(|| false),
             ),
             board: vec![vec![None; NB as usize]; NB as usize],
             player: Player::new(Vec::new()),

@@ -41,9 +41,12 @@ pub fn run() -> Result<(), String> {
     let mut canvas = window.into_canvas().build().map_err(|x| x.to_string())?;
     let mut event_pump = sdl_context.event_pump()?;
 
+    event_pump.disable_event(EventType::MouseMotion);
     event_pump.enable_event(EventType::AppTerminating);
     event_pump.enable_event(EventType::MouseButtonUp);
+    event_pump.enable_event(EventType::MouseButtonDown);
     event_pump.enable_event(EventType::KeyUp);
+    event_pump.enable_event(EventType::KeyDown);
     event_pump.enable_event(EventType::Quit);
 
     let mut panel: Option<Box<Panel>> = None;
@@ -55,11 +58,11 @@ pub fn run() -> Result<(), String> {
         canvas.clear();
         if let Some(panel) = &mut panel {
             panel.render(&mut canvas, MouseState::new(&event_pump))?;
+            canvas.present();
             if panel.do_loop()? {
                 continue;
             }
         }
-        canvas.present();
 
         for event in event_pump.poll_iter() {
             match event {

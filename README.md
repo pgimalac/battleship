@@ -1,8 +1,11 @@
 ## Project description
 This project is a battleship game aimed at making me learn and pratice Rust.
 
+### Disclaimer
+Segfaults started poping when changing panel since some updates, I may stop working on this since it's becomming a real pain in the ass
+
 #### Version
-Runs on 1.32.0+
+Runs on 1.32.0
 
 #### Details
 For the time being there is no text so it isn't very handy.

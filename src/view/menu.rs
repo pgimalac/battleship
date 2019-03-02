@@ -33,7 +33,7 @@ impl MenuPanel {
                     "Multiplayer game".to_string(),
                     TEXT_COLOR,
                     Box::new(move || unsafe {
-                        *panel = Some(Box::new(ConnectPanel::new(panel)));
+                        *panel = Some(Box::new(ConnectPanel::new(panel))); true
                     }),
                 ),
                 Button::new(
@@ -45,7 +45,7 @@ impl MenuPanel {
                     "AI game".to_string(),
                     TEXT_COLOR,
                     Box::new(move || unsafe {
-                        *panel = Some(Box::new(CreationPanel::new(panel, None)))
+                        *panel = Some(Box::new(CreationPanel::new(panel, None))); true
                     }),
                 ),
                 Button::new(

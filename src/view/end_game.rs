@@ -29,7 +29,7 @@ impl EndGamePanel {
                     MAGENTA,
                     if win { "You won !" } else { "You lose !" }.to_string(),
                     TEXT_COLOR,
-                    Box::new(|| ()),
+                    Box::new(|| false),
                 ),
                 Button::new(
                     h_space,
@@ -39,7 +39,7 @@ impl EndGamePanel {
                     CYAN,
                     "Back to menu".to_string(),
                     TEXT_COLOR,
-                    Box::new(move || unsafe { *panel = Some(Box::new(MenuPanel::new(panel))) }),
+                    Box::new(move || unsafe { *panel = Some(Box::new(MenuPanel::new(panel))); true }),
                 ),
                 Button::new(
                     h_space,

@@ -41,7 +41,7 @@ impl ConnectPanel {
                 YELLOW,
                 "Connect".to_string(),
                 TEXT_COLOR,
-                Box::new(|| {}),
+                Box::new(|| false),
             ),
             host_button: Button::new(
                 0,
@@ -51,7 +51,7 @@ impl ConnectPanel {
                 MAGENTA,
                 "Connect".to_string(),
                 TEXT_COLOR,
-                Box::new(|| {}),
+                Box::new(|| false),
             ),
             panel: panel,
             address,
@@ -93,6 +93,7 @@ impl Panel for ConnectPanel {
                                     Some((sock, false)),
                                 )))
                             }
+                            return Ok(true);
                         }
                         Err(e) => {
                             println!("{}", e.to_string());
@@ -138,7 +139,6 @@ impl Panel for ConnectPanel {
                     println!("{}", s);
                 }
             }
-
             _ => {}
         }
 

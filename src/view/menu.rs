@@ -32,7 +32,9 @@ impl MenuPanel {
                     GREEN,
                     "Multiplayer game".to_string(),
                     TEXT_COLOR,
-                    Box::new(move || unsafe { *panel = Some(Box::new(ConnectPanel::new(panel))) }),
+                    Box::new(move || unsafe {
+                        *panel = Some(Box::new(ConnectPanel::new(panel)));
+                    }),
                 ),
                 Button::new(
                     h_space,

@@ -36,6 +36,7 @@ pub trait Panel {
             for button in self.button_vec_mut() {
                 if button.contains_point((x, y)) {
                     button.execute();
+                    return Ok(true);
                 }
             }
         }

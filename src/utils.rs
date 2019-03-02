@@ -34,16 +34,6 @@ macro_rules! result_map {
     };
 }
 
-#[macro_export]
-macro_rules! try_string {
-    ($x : expr) => {
-        match $x {
-            Ok(o) => o,
-            Err(e) => return Err(e.to_string()),
-        }
-    };
-}
-
 pub fn fill_circle(
     canvas: &mut Canvas<Window>,
     color: Color,

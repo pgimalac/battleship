@@ -26,18 +26,19 @@ pub const HEIGHT: i32 = BOARD_WIDTH;
 pub const WIDTH: i32 = 2 * BOARD_WIDTH + DELTA;
 
 pub fn run() -> Result<(), String> {
-    let sdl_context = try_string!(sdl2::init());
-    let video_subsystem = try_string!(sdl_context.video());
+    let sdl_context = sdl2::init().map_err(|x| x.to_string())?;
+    let video_subsystem = sdl_context.video().map_err(|x| x.to_string())?;
     //    let event_subsystem = sdl_context.event().unwrap();
     //    let audio_subsystem = sdl_context.audio().unwrap();
     //    let timer_subsystem = sdl_context.timer().unwrap();
 
-    let window = try_string!(video_subsystem
+    let window = video_subsystem
         .window("Rust Battleship", WIDTH as u32, HEIGHT as u32)
         .position_centered()
-        .build());
+        .build()
+        .map_err(|x| x.to_string())?;
 
-    let mut canvas = try_string!(window.into_canvas().build());
+    let mut canvas = window.into_canvas().build().map_err(|x| x.to_string())?;
     let mut event_pump = sdl_context.event_pump()?;
 
     event_pump.enable_event(EventType::AppTerminating);
@@ -87,6 +88,6 @@ pub fn run() -> Result<(), String> {
             };
         }
 
-        thread::sleep(time::Duration::from_millis(50));
+        thread::sleep(time::Duration::from_millis(30));
     }
 }

@@ -113,6 +113,7 @@ impl Panel for CreationPanel {
     }
 
     fn manage_event(&mut self, event: Event) -> Result<bool, String> {
+        println!("begin manage event");
         match event {
             MouseButtonUp {
                 mouse_btn: MouseButton::Left,
@@ -139,15 +140,18 @@ impl Panel for CreationPanel {
                 swap(&mut boat, &mut self.selected);
                 if let Some(mut boat) = boat {
                     println!("drop the boat");
-                    let xx = (x - OFFSET_BOARD_X) / SIZE;
-                    let yy = (y - OFFSET_BOARD_Y) / SIZE;
-                    let d = (boat.direction.dx() as i32, boat.direction.dy() as i32);
+                    let xx = ((x - OFFSET_BOARD_X) / SIZE) as usize;
+                    let yy = ((y - OFFSET_BOARD_Y) / SIZE) as usize;
+                    let dx = boat.direction.dx() as usize;
+                    let dy = boat.direction.dy() as usize;
+                    let life = boat.max_life() as usize;
+                    println!("{},{}", xx, yy);
 
                     let mut valid = in_board!(xx, yy, NB, NB)
                     // the head of the boat is in the board
                         && in_board!(
-                            xx + d.0 as i32 * (boat.max_life() - 1) as i32,
-                            yy + d.1 as i32 * (boat.max_life() - 1) as i32,
+                            xx + dx * (life - 1),
+                            yy + dy * (life - 1),
                             NB,
                             NB
                         );
@@ -155,24 +159,22 @@ impl Panel for CreationPanel {
 
                     if valid {
                         println!("fully in board, let's see if the position is empty");
-                        for i in 0..boat.max_life() as i32 {
-                            valid &= self.board[(xx + i * d.0) as usize][(yy + i * d.1) as usize]
-                                == None;
+                        for i in 0..life {
+                            valid &= self.board[xx + i * dx][yy + i * dy] == None;
                         }
                     } else {
                         println!("Not even fully in the board");
                     }
                     if valid {
-                        println!("valid drop of the boat");
+                        println!(
+                            "valid drop of the boat xx:{}, yy:{}, life:{}, dx:{}, dy:{}",
+                            xx, yy, life, dx, dy
+                        );
                         boat.position = (xx as u8, yy as u8);
                         self.player.boats.push(boat);
-                        let pos = self.player.boats.len() - 1;
-                        let boat = &self.player.boats[pos];
-                        let pos = pos as u8;
-                        let dx = boat.direction.dx() as usize;
-                        let dy = boat.direction.dy() as usize;
-                        for i in 0..boat.max_life() as usize {
-                            self.board[xx as usize + dx * i][yy as usize + i * dy] = Some(pos);
+                        let pos = (self.player.boats.len() - 1) as u8;
+                        for i in 0..life {
+                            self.board[xx + dx * i][yy + i * dy] = Some(pos);
                         }
                     } else {
                         println!("invalid drop of the boat");
@@ -221,10 +223,12 @@ impl Panel for CreationPanel {
 
             _ => (),
         }
+        println!("end manage event");
         Ok(false)
     }
 
     fn render(&self, canvas: &mut Canvas<Window>, mouse_state: MouseState) -> Result<(), String> {
+        println!("begin render");
         canvas.set_draw_color(WHITE);
         canvas.fill_rect(None)?;
         for button in &self.buttons {
@@ -256,7 +260,7 @@ impl Panel for CreationPanel {
         }
 
         canvas.render_grid((OFFSET_PB_X, OFFSET_PB_Y), (5, 5), SIZE)?;
-
+        println!("end render");
         Ok(())
     }
 }

@@ -1,10 +1,13 @@
 ## Project description
 This project is a battleship game aimed at making me learn and pratice Rust.
 
+#### Version
+Runs on 1.32.0+
+
 #### Details
 For the time being there is no text so it isn't very handy.
 
-There is a main menu from which you can chose what to do : network multiplayer [this panel isn't done yet], AI multiplayer or quit.
+There is a main menu from which you can chose what to do : network multiplayer, AI multiplayer or quit.
 
 If you choose to play, both ways eventually bring you to a game creation panel from which you can position your boats. Any unpositionned boat is placed randomly.
 

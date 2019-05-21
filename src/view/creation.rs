@@ -113,7 +113,6 @@ impl Panel for CreationPanel {
     }
 
     fn manage_event(&mut self, event: Event) -> Result<bool, String> {
-        println!("begin manage event");
         match event {
             MouseButtonUp {
                 mouse_btn: MouseButton::Left,
@@ -223,12 +222,10 @@ impl Panel for CreationPanel {
 
             _ => (),
         }
-        println!("end manage event");
         Ok(false)
     }
 
     fn render(&self, canvas: &mut Canvas<Window>, mouse_state: MouseState) -> Result<(), String> {
-        println!("begin render");
         canvas.set_draw_color(WHITE);
         canvas.fill_rect(None)?;
         for button in &self.buttons {
@@ -260,7 +257,6 @@ impl Panel for CreationPanel {
         }
 
         canvas.render_grid((OFFSET_PB_X, OFFSET_PB_Y), (5, 5), SIZE)?;
-        println!("end render");
         Ok(())
     }
 }

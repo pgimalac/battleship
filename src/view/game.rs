@@ -15,15 +15,13 @@ pub const OFFSET_X: i32 = BOARD_WIDTH + 100;
 pub struct GamePanel {
     buttons: Vec<Button>,
     game: GameType,
-    panel: *mut Option<Box<Panel>>,
 }
 
 impl GamePanel {
-    pub fn new(panel: *mut Option<Box<Panel>>, game: GameType) -> Self {
+    pub fn new(game: GameType) -> Self {
         GamePanel {
             buttons: vec![],
             game,
-            panel,
         }
     }
 }
@@ -47,7 +45,7 @@ impl Panel for GamePanel {
         Ok(())
     }
 
-    fn manage_event(&mut self, event: Event) -> Result<bool, String> {
+    fn manage_event(&mut self, event: Event) -> Result<Option<Box<Panel>>, String> {
         if let Event::MouseButtonUp { x, y, .. } = event {
             println!("Mouse button up");
             if in_board!(x, y, BOARD_WIDTH, BOARD_WIDTH, OFFSET_X, 0) {
@@ -57,24 +55,20 @@ impl Panel for GamePanel {
             }
         }
 
-        Ok(false)
+        Ok(None)
     }
 
-    fn do_loop(&mut self) -> Result<bool, String> {
+    fn do_loop(&mut self) -> Result<Option<Box<Panel>>, String> {
         if let Some(b) = self.game.is_over() {
-            unsafe {
-                *self.panel = Some(Box::new(EndGamePanel::new(self.panel, b)));
-            }
-            Ok(true)
+            Ok(Some(Box::new(EndGamePanel::new(b))))
         } else if let GameType::Network { .. } = self.game {
             if self.game.check_network()? {
-                unsafe { *self.panel = Some(Box::new(EndGamePanel::new(self.panel, true))) }
-                Ok(true)
+                Ok(Some(Box::new(EndGamePanel::new(true))))
             } else {
-                Ok(false)
+                Ok(None)
             }
         } else {
-            Ok(false)
+            Ok(None)
         }
     }
 }

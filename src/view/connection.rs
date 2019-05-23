@@ -22,13 +22,12 @@ pub struct ConnectPanel {
     buttons: Vec<Button>,
     connect_button: Button,
     host_button: Button,
-    panel: *mut Option<Box<Panel>>,
     address: String,
     host_socket: Option<TcpListener>,
 }
 
 impl ConnectPanel {
-    pub fn new(panel: *mut Option<Box<Panel>>) -> Self {
+    pub fn new() -> Self {
         let address = String::with_capacity(39);
         println!("Creation of the connect panel");
         ConnectPanel {
@@ -41,7 +40,7 @@ impl ConnectPanel {
                 YELLOW,
                 "Connect".to_string(),
                 TEXT_COLOR,
-                Box::new(|| false),
+                Box::new(|| None),
             ),
             host_button: Button::new(
                 0,
@@ -51,9 +50,8 @@ impl ConnectPanel {
                 MAGENTA,
                 "Connect".to_string(),
                 TEXT_COLOR,
-                Box::new(|| false),
+                Box::new(|| None),
             ),
-            panel: panel,
             address,
             host_socket: None,
         }
@@ -69,7 +67,7 @@ impl Panel for ConnectPanel {
         &self.buttons
     }
 
-    fn manage_event(&mut self, event: Event) -> Result<bool, String> {
+    fn manage_event(&mut self, event: Event) -> Result<Option<Box<Panel>>, String> {
         match event {
             MouseButtonUp {
                 mouse_btn: MouseButton::Left,
@@ -79,7 +77,9 @@ impl Panel for ConnectPanel {
             } => {
                 for button in &mut self.buttons {
                     if button.contains_point((x, y)) {
-                        button.execute();
+                        if let Some(panel) = button.execute() {
+                            return Ok(Some(panel));
+                        }
                     }
                 }
                 if self.connect_button.contains_point((x, y)) {
@@ -87,13 +87,7 @@ impl Panel for ConnectPanel {
                         Ok(sock) => {
                             sock.set_read_timeout(Some(Duration::from_nanos(1)))
                                 .map_err(|x| x.to_string())?;
-                            unsafe {
-                                *self.panel = Some(Box::new(CreationPanel::new(
-                                    self.panel,
-                                    Some((sock, false)),
-                                )))
-                            }
-                            return Ok(true);
+                            return Ok(Some(Box::new(CreationPanel::new(Some((sock, false))))));
                         }
                         Err(e) => {
                             println!("{}", e.to_string());
@@ -142,7 +136,7 @@ impl Panel for ConnectPanel {
             _ => {}
         }
 
-        Ok(false)
+        Ok(None)
     }
 
     fn render(&self, canvas: &mut Canvas<Window>, _mouse_state: MouseState) -> Result<(), String> {
@@ -157,15 +151,12 @@ impl Panel for ConnectPanel {
         self.connect_button.render(canvas)
     }
 
-    fn do_loop(&mut self) -> Result<bool, String> {
+    fn do_loop(&mut self) -> Result<Option<Box<Panel>>, String> {
         if let Some(host_socket) = &self.host_socket {
             if let Some(sock) = wait_client(&host_socket) {
-                unsafe {
-                    *self.panel = Some(Box::new(CreationPanel::new(self.panel, Some((sock, true)))))
-                }
-                return Ok(true);
+                return Ok(Some(Box::new(CreationPanel::new(Some((sock, true))))));
             }
         }
-        Ok(false)
+        Ok(None)
     }
 }

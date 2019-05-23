@@ -49,19 +49,15 @@ pub fn run() -> Result<(), String> {
     event_pump.enable_event(EventType::KeyDown);
     event_pump.enable_event(EventType::Quit);
 
-    let mut panel: Option<Box<Panel>> = None;
-    panel = Some(Box::new(MenuPanel::new(
-        &mut panel as *mut Option<Box<Panel>>,
-    )));
+    let mut panel: Box<Panel> = Box::new(MenuPanel::new());
 
     loop {
         canvas.clear();
-        if let Some(panel) = &mut panel {
-            panel.render(&mut canvas, MouseState::new(&event_pump))?;
-            canvas.present();
-            if panel.do_loop()? {
-                continue;
-            }
+        panel.render(&mut canvas, MouseState::new(&event_pump))?;
+        canvas.present();
+        if let Some(newpanel) = panel.do_loop()? {
+            panel = newpanel;
+            continue;
         }
 
         for event in event_pump.poll_iter() {
@@ -76,16 +72,13 @@ pub fn run() -> Result<(), String> {
                     keycode: Some(Keycode::Q),
                     ..
                 } => {
-                    panel = Some(Box::new(MenuPanel::new(
-                        &mut panel as *mut Option<Box<Panel>>,
-                    )));
+                    panel = Box::new(MenuPanel::new());
                     continue;
                 }
                 e => {
-                    if let Some(panel) = &mut panel {
-                        if panel.manage_event(e)? {
-                            continue;
-                        }
+                    if let Some(newpanel) = panel.manage_event(e)? {
+                        panel = newpanel;
+                        continue;
                     }
                 }
             };

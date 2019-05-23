@@ -15,7 +15,7 @@ pub struct MenuPanel {
 }
 
 impl MenuPanel {
-    pub fn new(panel: *mut Option<Box<Panel>>) -> Self {
+    pub fn new() -> Self {
         let n = 3;
         let width = 200;
         let height = 100;
@@ -32,10 +32,7 @@ impl MenuPanel {
                     GREEN,
                     "Multiplayer game".to_string(),
                     TEXT_COLOR,
-                    Box::new(move || unsafe {
-                        *panel = Some(Box::new(ConnectPanel::new(panel)));
-                        true
-                    }),
+                    Box::new(|| Some(Box::new(ConnectPanel::new()))),
                 ),
                 Button::new(
                     h_space,
@@ -45,10 +42,7 @@ impl MenuPanel {
                     BLUE,
                     "AI game".to_string(),
                     TEXT_COLOR,
-                    Box::new(move || unsafe {
-                        *panel = Some(Box::new(CreationPanel::new(panel, None)));
-                        true
-                    }),
+                    Box::new(|| Some(Box::new(CreationPanel::new(None)))),
                 ),
                 Button::new(
                     h_space,

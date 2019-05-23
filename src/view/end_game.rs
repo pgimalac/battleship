@@ -12,7 +12,7 @@ pub struct EndGamePanel {
 }
 
 impl EndGamePanel {
-    pub fn new(panel: *mut Option<Box<Panel>>, win: bool) -> Self {
+    pub fn new(win: bool) -> Self {
         let n = 3;
         let width = 200;
         let height = 100;
@@ -29,7 +29,7 @@ impl EndGamePanel {
                     MAGENTA,
                     if win { "You won !" } else { "You lose !" }.to_string(),
                     TEXT_COLOR,
-                    Box::new(|| false),
+                    Box::new(|| None),
                 ),
                 Button::new(
                     h_space,
@@ -39,7 +39,7 @@ impl EndGamePanel {
                     CYAN,
                     "Back to menu".to_string(),
                     TEXT_COLOR,
-                    Box::new(move || unsafe { *panel = Some(Box::new(MenuPanel::new(panel))); true }),
+                    Box::new(|| Some(Box::new(MenuPanel::new()))),
                 ),
                 Button::new(
                     h_space,

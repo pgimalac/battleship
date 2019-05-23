@@ -25,7 +25,7 @@ pub trait Panel {
     }
 
     // the Ok part is true to 'continue' the main loop (go back to the beginning) and false otherwise
-    fn manage_event(&mut self, event: Event) -> Result<bool, String> {
+    fn manage_event(&mut self, event: Event) -> Result<Option<Box<Panel>>, String> {
         if let MouseButtonUp {
             mouse_btn: MouseButton::Left,
             x,
@@ -34,18 +34,20 @@ pub trait Panel {
         } = event
         {
             for button in self.button_vec_mut() {
-                if button.contains_point((x, y)) && button.execute() {
-                    return Ok(true);
+                if button.contains_point((x, y)) {
+                    if let Some(panel) = button.execute() {
+                        return Ok(Some(panel));
+                    }
                 }
             }
         }
-        Ok(false)
+        Ok(None)
     }
 
     // called each loop turn
     // does nothing by default
     // the Ok part is true to 'continue' the main loop (go back to the beginning) and false otherwise
-    fn do_loop(&mut self) -> Result<bool, String> {
-        Ok(false)
+    fn do_loop(&mut self) -> Result<Option<Box<Panel>>, String> {
+        Ok(None)
     }
 }

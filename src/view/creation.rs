@@ -51,11 +51,10 @@ pub struct CreationPanel {
     network: Option<(TcpStream, bool)>,
     start_button: Button,
     selected: Option<Boat>,
-    panel: *mut Option<Box<Panel>>,
 }
 
 impl CreationPanel {
-    pub fn new(panel: *mut Option<Box<Panel>>, network: Option<(TcpStream, bool)>) -> Self {
+    pub fn new(network: Option<(TcpStream, bool)>) -> Self {
         let pending_boats = vec![
             Some(Boat::new(Class::Carrier, (0, 0), Direction::Right)),
             Some(Boat::new(Class::Battleship, (0, 0), Direction::Right)),
@@ -73,14 +72,13 @@ impl CreationPanel {
                 YELLOW,
                 "Start".to_string(),
                 TEXT_COLOR,
-                Box::new(|| false),
+                Box::new(|| None),
             ),
             board: vec![vec![None; NB as usize]; NB as usize],
             player: Player::new(Vec::new()),
             pending_boats,
             network,
             selected: None,
-            panel,
         }
     }
 
@@ -112,7 +110,7 @@ impl Panel for CreationPanel {
         &self.buttons
     }
 
-    fn manage_event(&mut self, event: Event) -> Result<bool, String> {
+    fn manage_event(&mut self, event: Event) -> Result<Option<Box<Panel>>, String> {
         match event {
             MouseButtonUp {
                 mouse_btn: MouseButton::Left,
@@ -122,16 +120,13 @@ impl Panel for CreationPanel {
             } => {
                 // click on the start button
                 if self.start_button.contains_point((x, y)) {
-                    unsafe {
-                        *self.panel = Some(match self.into_game_type() {
-                            Ok(game) => Box::new(GamePanel::new(self.panel, game)),
-                            Err(err) => {
-                                println!("{}", err);
-                                Box::new(MenuPanel::new(self.panel))
-                            }
-                        })
-                    }
-                    return Ok(true);
+                    return Ok(Some(match self.into_game_type() {
+                        Ok(game) => Box::new(GamePanel::new(game)),
+                        Err(err) => {
+                            println!("{}", err);
+                            Box::new(MenuPanel::new())
+                        }
+                    }));
                 }
 
                 // drop a boat
@@ -222,7 +217,7 @@ impl Panel for CreationPanel {
 
             _ => (),
         }
-        Ok(false)
+        Ok(None)
     }
 
     fn render(&self, canvas: &mut Canvas<Window>, mouse_state: MouseState) -> Result<(), String> {

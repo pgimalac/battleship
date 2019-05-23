@@ -1,3 +1,4 @@
+use crate::view::panel::Panel;
 use sdl2::{pixels::Color, rect::Rect, render::Canvas, video::Window};
 
 pub struct Button {
@@ -5,7 +6,7 @@ pub struct Button {
     position: Rect,
     _text: String,
     _text_color: Color,
-    action: *mut Box<FnMut() -> bool>,
+    action: Box<FnMut() -> Option<Box<Panel>>>,
 }
 
 impl Button {
@@ -17,14 +18,14 @@ impl Button {
         background: Color,
         _text: String,
         _text_color: Color,
-        action: Box<FnMut() -> bool>,
+        action: Box<FnMut() -> Option<Box<Panel>>>,
     ) -> Button {
         Button {
             position: Rect::new(x, y, w as u32, h as u32),
             background,
             _text,
             _text_color,
-            action: Box::into_raw(Box::new(action)),
+            action,
         }
     }
 
@@ -37,17 +38,7 @@ impl Button {
         self.position.contains_point(point)
     }
 
-    pub fn execute(&mut self) -> bool {
-        unsafe { (*self.action)() }
+    pub fn execute(&mut self) -> Option<Box<Panel>> {
+        (self.action)()
     }
 }
-
-// impl Drop for Button {
-//     fn drop(&mut self) {
-//         let mut f: *mut Box<FnMut() -> bool> = std::ptr::null_mut();
-//         std::mem::swap(&mut f, &mut self.action);
-//         unsafe {
-//             std::ptr::drop_in_place(f);
-//         }
-//     }
-// }

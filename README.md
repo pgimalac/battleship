@@ -28,9 +28,9 @@ During the game creation :
 - [x] GUI
 - [x] Network
 - [x] Menu
+- [x] Put boats yourself
 - [ ] Display whose turn it is
 - [ ] Buttons to quit, restart, back to menu,...
-- [ ] Put boats yourself
 
 One day:
 - [ ] Move boats
@@ -39,4 +39,4 @@ One day:
 
 Another day:
 
-- [ ] AI
+- [ ] AI (not just fully random shots)

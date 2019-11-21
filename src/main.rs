@@ -6,8 +6,6 @@ mod view;
 
 pub const NB: i32 = 12;
 
-fn main() {
-    if let Err(err) = view::run() {
-        panic!("{}", err);
-    }
+fn main() -> Result<(), String> {
+    view::run()
 }
